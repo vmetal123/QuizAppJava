@@ -5,6 +5,8 @@ import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.cabrera.quizappjava.Adapters.AnswerSheetAdapter;
+import com.example.cabrera.quizappjava.Adapters.QuestionFragmentAdapter;
 import com.example.cabrera.quizappjava.Common.Common;
 import com.example.cabrera.quizappjava.DBHelpers.DBHelper;
 import com.example.cabrera.quizappjava.Model.CurrentQuestion;
@@ -39,6 +42,9 @@ public class QuestionActivity extends AppCompatActivity
 
     RecyclerView answer_sheet_view;
     AnswerSheetAdapter answerSheetAdapter;
+
+    ViewPager viewPager;
+    TabLayout tabLayout;
 
     @Override
     protected void onDestroy() {
@@ -84,6 +90,27 @@ public class QuestionActivity extends AppCompatActivity
                 answer_sheet_view.setLayoutManager(new GridLayoutManager(this, Common.questionList.size()/2));
             answerSheetAdapter = new AnswerSheetAdapter(this, Common.answerSheetList);
             answer_sheet_view.setAdapter(answerSheetAdapter);
+
+            viewPager = findViewById(R.id.viewpager);
+            tabLayout = findViewById(R.id.sliding_tabs);
+            
+            genFragmentList();
+
+            QuestionFragmentAdapter questionFragmentAdapter = new QuestionFragmentAdapter(getSupportFragmentManager(),this, Common.fragmentsList);
+            viewPager.setAdapter(questionFragmentAdapter);
+            tabLayout.setupWithViewPager(viewPager);
+
+            
+        }
+    }
+
+    private void genFragmentList() {
+        for (int i=0;i < Common.questionList.size(); i++){
+            Bundle bundle = new Bundle();
+            bundle.putInt("index", i);
+            QuestionFragment fragment = new QuestionFragment();
+            fragment.setArguments(bundle);
+            Common.fragmentsList.add(fragment);
         }
     }
 
@@ -92,7 +119,7 @@ public class QuestionActivity extends AppCompatActivity
             Common.countDownTimer = new CountDownTimer(Common.TOTAL_TIME, 1000) {
                 @Override
                 public void onTick(long l) {
-                    txt_timer.setText(String.format("%02d: %02d",
+                    txt_timer.setText(String.format("%02d:%02d",
                             TimeUnit.MILLISECONDS.toMinutes(l),
                             TimeUnit.MILLISECONDS.toSeconds(l) -
                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((l)))));
@@ -109,7 +136,7 @@ public class QuestionActivity extends AppCompatActivity
             Common.countDownTimer = new CountDownTimer(Common.TOTAL_TIME, 1000) {
                 @Override
                 public void onTick(long l) {
-                    txt_timer.setText(String.format("%02d: %02d",
+                    txt_timer.setText(String.format("%02d:%02d",
                             TimeUnit.MILLISECONDS.toMinutes(l),
                             TimeUnit.MILLISECONDS.toSeconds(l) -
                                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((l)))));
